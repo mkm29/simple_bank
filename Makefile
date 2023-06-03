@@ -30,4 +30,4 @@ migratedown: ## Rollback database version
 
 dbgen: ## Generate database migration file
 	@echo "Generating SQL with sqlc..."
-	sqlc generate
+	@sqlc generate --experimental

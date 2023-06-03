@@ -8,34 +8,34 @@ SELECT * FROM accounts WHERE owner = $1;
 INSERT INTO accounts (owner, balance, currency) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: ListAccounts :many
-SELECT * FROM accounts ORDER BY id;
+SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 
 -- name: CreateEntry :one
 INSERT INTO entries (account_id, amount) VALUES ($1, $2) RETURNING *;
 
 -- name: ListEntries :many
-SELECT * FROM entries WHERE account_id = $1 ORDER BY id;
+SELECT * FROM entries WHERE account_id = $1 ORDER BY id LIMIT $2 OFFSET $3;
 
 -- name: CreateTransfer :one
 INSERT INTO transfers (from_account_id, to_account_id, amount) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: ListTransfers :many
-SELECT * FROM transfers WHERE from_account_id = $1 OR to_account_id = $1 ORDER BY id;
+SELECT * FROM transfers WHERE from_account_id = $1 OR to_account_id = $1 ORDER BY id LIMIT $2 OFFSET $3;
 
 -- name: GetTransfer :one
 SELECT * FROM transfers WHERE id = $1;
 
--- name: GetTransferByIDs :one
+-- name: GetTransfersByIDs :one
 SELECT * FROM transfers WHERE from_account_id = $1 AND to_account_id = $2;
 
--- name: GetTransferByIDsForUpdate :one
+-- name: GetTransfersByIDsForUpdate :one
 SELECT * FROM transfers WHERE from_account_id = $1 AND to_account_id = $2 FOR UPDATE;
 
 -- name: UpdateAccountBalance :exec
 UPDATE accounts SET balance = balance + $1 WHERE id = $2;
 
 -- name: UpdateAccountBalanceAndReturn :one
-UPDATE accounts SET balance = balance + $1 WHERE id = $2 RETURNING *;
+UPDATE accounts SET balance = $2 WHERE id = $1 RETURNING *;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts WHERE id = $1;
