@@ -20,7 +20,7 @@ type CreateAccountParams struct {
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
-	row := q.db.QueryRow(ctx, createAccount, arg.Owner, arg.Balance, arg.Currency)
+	row := q.db.QueryRowContext(ctx, createAccount, arg.Owner, arg.Balance, arg.Currency)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -42,7 +42,7 @@ type CreateEntryParams struct {
 }
 
 func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
-	row := q.db.QueryRow(ctx, createEntry, arg.AccountID, arg.Amount)
+	row := q.db.QueryRowContext(ctx, createEntry, arg.AccountID, arg.Amount)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
@@ -64,7 +64,7 @@ type CreateTransferParams struct {
 }
 
 func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
-	row := q.db.QueryRow(ctx, createTransfer, arg.FromAccountID, arg.ToAccountID, arg.Amount)
+	row := q.db.QueryRowContext(ctx, createTransfer, arg.FromAccountID, arg.ToAccountID, arg.Amount)
 	var i Transfer
 	err := row.Scan(
 		&i.ID,
@@ -81,7 +81,7 @@ DELETE FROM accounts WHERE id = $1
 `
 
 func (q *Queries) DeleteAccount(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteAccount, id)
+	_, err := q.db.ExecContext(ctx, deleteAccount, id)
 	return err
 }
 
@@ -90,7 +90,7 @@ DELETE FROM accounts
 `
 
 func (q *Queries) DeleteAllAccounts(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteAllAccounts)
+	_, err := q.db.ExecContext(ctx, deleteAllAccounts)
 	return err
 }
 
@@ -99,7 +99,7 @@ DELETE FROM entries
 `
 
 func (q *Queries) DeleteAllEntries(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteAllEntries)
+	_, err := q.db.ExecContext(ctx, deleteAllEntries)
 	return err
 }
 
@@ -108,7 +108,7 @@ DELETE FROM transfers
 `
 
 func (q *Queries) DeleteAllTransfers(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteAllTransfers)
+	_, err := q.db.ExecContext(ctx, deleteAllTransfers)
 	return err
 }
 
@@ -117,7 +117,7 @@ DELETE FROM entries WHERE id = $1
 `
 
 func (q *Queries) DeleteEntry(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteEntry, id)
+	_, err := q.db.ExecContext(ctx, deleteEntry, id)
 	return err
 }
 
@@ -126,7 +126,7 @@ DELETE FROM transfers WHERE id = $1
 `
 
 func (q *Queries) DeleteTransfer(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteTransfer, id)
+	_, err := q.db.ExecContext(ctx, deleteTransfer, id)
 	return err
 }
 
@@ -135,7 +135,7 @@ SELECT id, owner, balance, currency, created_at FROM accounts WHERE id = $1
 `
 
 func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccount, id)
+	row := q.db.QueryRowContext(ctx, getAccount, id)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -152,7 +152,7 @@ SELECT id, owner, balance, currency, created_at FROM accounts WHERE owner = $1
 `
 
 func (q *Queries) GetAccountByOwner(ctx context.Context, owner string) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccountByOwner, owner)
+	row := q.db.QueryRowContext(ctx, getAccountByOwner, owner)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -174,7 +174,7 @@ type GetBalanceByIDsForUpdateParams struct {
 }
 
 func (q *Queries) GetBalanceByIDsForUpdate(ctx context.Context, arg GetBalanceByIDsForUpdateParams) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceByIDsForUpdate, arg.ID, arg.ID_2)
+	row := q.db.QueryRowContext(ctx, getBalanceByIDsForUpdate, arg.ID, arg.ID_2)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
@@ -185,7 +185,7 @@ SELECT balance FROM accounts WHERE id = $1
 `
 
 func (q *Queries) GetBalanceById(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceById, id)
+	row := q.db.QueryRowContext(ctx, getBalanceById, id)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
@@ -196,7 +196,7 @@ SELECT balance FROM accounts WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetBalanceByIdForUpdate(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceByIdForUpdate, id)
+	row := q.db.QueryRowContext(ctx, getBalanceByIdForUpdate, id)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
@@ -207,7 +207,7 @@ SELECT balance FROM accounts WHERE owner = $1
 `
 
 func (q *Queries) GetBalanceByOwner(ctx context.Context, owner string) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceByOwner, owner)
+	row := q.db.QueryRowContext(ctx, getBalanceByOwner, owner)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
@@ -218,7 +218,7 @@ SELECT balance FROM accounts WHERE owner = $1 FOR UPDATE
 `
 
 func (q *Queries) GetBalanceByOwnerForUpdate(ctx context.Context, owner string) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceByOwnerForUpdate, owner)
+	row := q.db.QueryRowContext(ctx, getBalanceByOwnerForUpdate, owner)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
@@ -234,10 +234,26 @@ type GetBalanceByOwnersForUpdateParams struct {
 }
 
 func (q *Queries) GetBalanceByOwnersForUpdate(ctx context.Context, arg GetBalanceByOwnersForUpdateParams) (int64, error) {
-	row := q.db.QueryRow(ctx, getBalanceByOwnersForUpdate, arg.Owner, arg.Owner_2)
+	row := q.db.QueryRowContext(ctx, getBalanceByOwnersForUpdate, arg.Owner, arg.Owner_2)
 	var balance int64
 	err := row.Scan(&balance)
 	return balance, err
+}
+
+const getEntry = `-- name: GetEntry :one
+SELECT id, account_id, amount, created_at FROM entries WHERE id = $1
+`
+
+func (q *Queries) GetEntry(ctx context.Context, id int64) (Entry, error) {
+	row := q.db.QueryRowContext(ctx, getEntry, id)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getTransfer = `-- name: GetTransfer :one
@@ -245,7 +261,7 @@ SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers WHE
 `
 
 func (q *Queries) GetTransfer(ctx context.Context, id int64) (Transfer, error) {
-	row := q.db.QueryRow(ctx, getTransfer, id)
+	row := q.db.QueryRowContext(ctx, getTransfer, id)
 	var i Transfer
 	err := row.Scan(
 		&i.ID,
@@ -267,7 +283,7 @@ type GetTransfersByIDsParams struct {
 }
 
 func (q *Queries) GetTransfersByIDs(ctx context.Context, arg GetTransfersByIDsParams) (Transfer, error) {
-	row := q.db.QueryRow(ctx, getTransfersByIDs, arg.FromAccountID, arg.ToAccountID)
+	row := q.db.QueryRowContext(ctx, getTransfersByIDs, arg.FromAccountID, arg.ToAccountID)
 	var i Transfer
 	err := row.Scan(
 		&i.ID,
@@ -289,7 +305,7 @@ type GetTransfersByIDsForUpdateParams struct {
 }
 
 func (q *Queries) GetTransfersByIDsForUpdate(ctx context.Context, arg GetTransfersByIDsForUpdateParams) (Transfer, error) {
-	row := q.db.QueryRow(ctx, getTransfersByIDsForUpdate, arg.FromAccountID, arg.ToAccountID)
+	row := q.db.QueryRowContext(ctx, getTransfersByIDsForUpdate, arg.FromAccountID, arg.ToAccountID)
 	var i Transfer
 	err := row.Scan(
 		&i.ID,
@@ -311,7 +327,7 @@ type ListAccountsParams struct {
 }
 
 func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error) {
-	rows, err := q.db.Query(ctx, listAccounts, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listAccounts, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -330,6 +346,9 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -347,7 +366,7 @@ type ListEntriesParams struct {
 }
 
 func (q *Queries) ListEntries(ctx context.Context, arg ListEntriesParams) ([]Entry, error) {
-	rows, err := q.db.Query(ctx, listEntries, arg.AccountID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listEntries, arg.AccountID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -364,6 +383,9 @@ func (q *Queries) ListEntries(ctx context.Context, arg ListEntriesParams) ([]Ent
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -382,7 +404,7 @@ type ListTransfersParams struct {
 }
 
 func (q *Queries) ListTransfers(ctx context.Context, arg ListTransfersParams) ([]Transfer, error) {
-	rows, err := q.db.Query(ctx, listTransfers, arg.FromAccountID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listTransfers, arg.FromAccountID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -401,37 +423,26 @@ func (q *Queries) ListTransfers(ctx context.Context, arg ListTransfersParams) ([
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return items, nil
 }
 
-const updateAccountBalance = `-- name: UpdateAccountBalance :exec
-UPDATE accounts SET balance = balance + $1 WHERE id = $2
-`
-
-type UpdateAccountBalanceParams struct {
-	Balance int64
-	ID      int64
-}
-
-func (q *Queries) UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) error {
-	_, err := q.db.Exec(ctx, updateAccountBalance, arg.Balance, arg.ID)
-	return err
-}
-
-const updateAccountBalanceAndReturn = `-- name: UpdateAccountBalanceAndReturn :one
+const updateAccountBalance = `-- name: UpdateAccountBalance :one
 UPDATE accounts SET balance = $2 WHERE id = $1 RETURNING id, owner, balance, currency, created_at
 `
 
-type UpdateAccountBalanceAndReturnParams struct {
+type UpdateAccountBalanceParams struct {
 	ID      int64
 	Balance int64
 }
 
-func (q *Queries) UpdateAccountBalanceAndReturn(ctx context.Context, arg UpdateAccountBalanceAndReturnParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccountBalanceAndReturn, arg.ID, arg.Balance)
+func (q *Queries) UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, updateAccountBalance, arg.ID, arg.Balance)
 	var i Account
 	err := row.Scan(
 		&i.ID,
