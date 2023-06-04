@@ -13,6 +13,9 @@ SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 -- name: CreateEntry :one
 INSERT INTO entries (account_id, amount) VALUES ($1, $2) RETURNING *;
 
+-- name: GetEntry :one
+SELECT * FROM entries WHERE id = $1;
+
 -- name: ListEntries :many
 SELECT * FROM entries WHERE account_id = $1 ORDER BY id LIMIT $2 OFFSET $3;
 
@@ -31,10 +34,7 @@ SELECT * FROM transfers WHERE from_account_id = $1 AND to_account_id = $2;
 -- name: GetTransfersByIDsForUpdate :one
 SELECT * FROM transfers WHERE from_account_id = $1 AND to_account_id = $2 FOR UPDATE;
 
--- name: UpdateAccountBalance :exec
-UPDATE accounts SET balance = balance + $1 WHERE id = $2;
-
--- name: UpdateAccountBalanceAndReturn :one
+-- name: UpdateAccountBalance :one
 UPDATE accounts SET balance = $2 WHERE id = $1 RETURNING *;
 
 -- name: DeleteAccount :exec
