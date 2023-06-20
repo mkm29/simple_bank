@@ -1,6 +1,9 @@
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1;
 
+-- name: GetAccountForUpdate :one
+SELECT * FROM accounts WHERE id = $1 FOR NO KEY UPDATE;
+
 -- name: GetAccountByOwner :one
 SELECT * FROM accounts WHERE owner = $1;
 
@@ -36,6 +39,9 @@ SELECT * FROM transfers WHERE from_account_id = $1 AND to_account_id = $2 FOR UP
 
 -- name: UpdateAccountBalance :one
 UPDATE accounts SET balance = $2 WHERE id = $1 RETURNING *;
+
+-- name: AddAccountBalance :one
+UPDATE accounts SET balance = balance + sqlc.arg(amount) WHERE id = sqlc.arg(id) RETURNING *;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts WHERE id = $1;
