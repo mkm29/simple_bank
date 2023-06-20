@@ -1,3 +1,5 @@
+PORT := 15432
+
 .PHONY: help
 
 help: ## This help.
@@ -7,7 +9,7 @@ postgres_up: ## Start postgres container
 	@echo "Starting postgres container..."
 	docker run -e POSTGRES_PASSWORD=secret \
   -e POSTGRES_USER=simplebank \
-  -p 5432:5432 \
+  -p $(PORT):5432 \
   --name simplebank_db \
   -d postgres:12.15-alpine3.18
 
@@ -21,11 +23,11 @@ dropdb: ## Drop simplebank database
 
 migrateup: ## Migrate database to latest version
 	@echo "Migrating database..."
-	migrate -path internal/db/migrations -database "postgresql://simplebank:secret@localhost:5432/simplebank?sslmode=disable" -verbose up
+	migrate -path internal/db/migrations -database "postgresql://simplebank:secret@localhost:$(PORT)/simplebank?sslmode=disable" -verbose up
 
 migratedown: ## Rollback database version
 	@echo "Rolling back database..."
-	migrate -path internal/db/migrations -database "postgresql://simplebank:secret@localhost:5432/simplebank?sslmode=disable" -verbose down
+	migrate -path internal/db/migrations -database "postgresql://simplebank:secret@localhost:$(PORT)/simplebank?sslmode=disable" -verbose down
 
 
 dbgen: ## Generate database migration file
